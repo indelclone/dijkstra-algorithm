@@ -139,8 +139,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         const weight = prompt("간선 가중치를 입력하세요 (숫자):", "1");
                         if (weight && !isNaN(weight)) {
                             const parsedWeight = parseInt(weight);
-                            if (parsedWeight < 0) {
-                                alert("음수 가중치는 허용되지 않습니다. 0 이상의 값을 입력해주세요.");
+                            if (parsedWeight <= 0) {
+                                alert("음수 가중치는 허용되지 않습니다. 0 보다 큰 값을 입력해주세요.");
                             } else {
                                 addEdge(edgeFromNode, nodeId, parsedWeight);
                             }
