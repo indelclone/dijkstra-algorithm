@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dijkstra Algorithm Visualizer</title>
+    <title>다익스트라 알고리즘 시뮬레이션</title>
     <link rel="stylesheet" href="style.css">
+    <!-- v0.1 -->
 </head>
 <body>
-    <h1>Dijkstra Algorithm Visualizer</h1>
+    <h1>다익스트라 알고리즘 시뮬레이션</h1>
     <div id="controls">
         <button id="add-node-btn">노드 추가</button>
         <button id="remove-node-btn">노드 삭제</button>
@@ -16,13 +17,16 @@
         <button id="remove-edge-btn">간선 제거</button>
         <button id="set-start-btn">시작점 선택</button>
         <button id="set-end-btn">종료점 선택</button>
-        <button id="run-btn">실행</button>
-        <button id="reset-btn">초기화</button>
     </div>
     <div id="graph-container">
         <svg id="graph-svg"></svg>
     </div>
     <p id="status-text">상태: 대기 중</p>
+    <div id="controls">
+        <button id="run-btn">실행</button>
+        <button id="reset-btn">초기화</button>
+    </div>
+    
     <script src="script.js"></script>
 </body>
 </html>

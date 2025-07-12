@@ -52,45 +52,60 @@ button.active {
 }
 
 .node {
-    r: 15;
-    fill: #007bff;
-    stroke: #fff;
-    stroke-width: 2;
+    r: 20;
+    fill : #fff;
+    stroke: #007bff;
+    /* color: #000; */
+    /* font: 30px; */
+    stroke-width: 3;
     cursor: pointer;
+
+    /* display: block; */
+    
     transition: fill 0.3s;
+    text-align: middle;
 }
 
 .node:hover {
-    fill: #0056b3;
+    stroke: #0056b3;
 }
 
 .node.start {
-    fill: #28a745; /* Green */
+    stroke: #28a745; /* Green */
 }
 
 .node.end {
-    fill: #dc3545; /* Red */
+    stroke: #dc3545; /* Red */
 }
 
 .node-label {
-    font-size: 12px;
-    fill: #fff;
+    font-size: 16px;
+    fill: #000;
+    font-weight: bold;
     text-anchor: middle;
     dominant-baseline: central;
-    pointer-events: none; /* Make text non-interactive */
+    pointer-events: none;
 }
 
 .edge {
     stroke: #333;
-    stroke-width: 2;
+    stroke-width: 4;
 }
 
 .edge-label {
-    font-size: 14px;
+    font-size: 16px;
     fill: #d9534f;
+    font-weight: bold;
+    /* -webkit-text-stroke: 3px white; */
     text-anchor: middle;
     dominant-baseline: central;
     pointer-events: none;
+
+    stroke: white;
+    stroke-width: 3px;
+    stroke-linecap: butt;
+    stroke-linejoin: miter;
+    paint-order: stroke;
 }
 
 .path {

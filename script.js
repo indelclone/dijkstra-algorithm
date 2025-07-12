@@ -235,6 +235,15 @@ document.addEventListener('DOMContentLoaded', () => {
         nodes[node1Id].edges.push({ to: node2Id, weight, key: edgeKey });
         nodes[node2Id].edges.push({ to: node1Id, weight, key: edgeKey });
     }
+    function setStartNode(nodeId) {
+         if (startNodeId) {
+                 nodes[startNodeId].element.classList.remove('start');
+             }
+             startNodeId = nodeId;
+             nodes[nodeId].element.classList.add('start');
+             statusText.textContent = `시작점: 노드 ${nodeId}`;
+             setMode('none');
+        }
 
     function onEdgeClick(edgeKey, e) {
         e.stopPropagation(); // Prevent graphSvg click event
@@ -263,6 +272,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function resetGraph() {
+        let yes = confirm("정말로 초기화하시겠습니까?");
+        if (!yes) return;
         // Clear SVG
         while (graphSvg.firstChild) {
             graphSvg.removeChild(graphSvg.firstChild);
@@ -327,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
              path.unshift(startId);
         }
 
-        return { visitedOrder, path: path[0] == startId ? path : [] };
+        return { visitedOrder, path: path[0] == startId ? path : [], dist : distances[endId] };
     }
 
     async function runDijkstra() {
@@ -337,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         clearVisuals();
 
-        const { visitedOrder, path } = dijkstra(startNodeId, endNodeId);
+        const { visitedOrder, path, dist } = dijkstra(startNodeId, endNodeId);
 
         // Animate visited nodes
         for (let i = 0; i < visitedOrder.length; i++) {
@@ -359,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     await new Promise(resolve => setTimeout(resolve, 150));
                 }
             }
-            statusText.textContent = "최단 경로를 찾았습니다!";
+            statusText.textContent = "길이가 " + dist + "인 최단 경로를 찾았습니다!";
         } else {
             statusText.textContent = "경로를 찾을 수 없습니다.";
         }
