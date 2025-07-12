@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addNodeBtn = document.getElementById('add-node-btn');
     const removeNodeBtn = document.getElementById('remove-node-btn');
     const addEdgeBtn = document.getElementById('add-edge-btn');
+    const removeEdgeBtn = document.getElementById('remove-edge-btn');
     const selectNodeBtn = document.getElementById('select-node-btn'); // Added
     const setStartBtn = document.getElementById('set-start-btn');
     const setEndBtn = document.getElementById('set-end-btn');
@@ -14,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetBtn = document.getElementById('reset-btn');
 
     // State
-    let mode = 'none'; // 'add-node', 'remove-node', 'add-edge', 'set-start', 'set-end', 'select-node'
+    let mode = 'none'; // 'add-node', 'remove-node', 'add-edge', 'set-start', 'set-end', 'select-node', 'remove-edge'
     let nodeCount = 0;
     let nodes = {}; // { id: { x, y, edges: [], element, textElement } }
     let edges = {}; // { 'node1-node2': { weight, element, textElement } }
@@ -29,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'add-node': addNodeBtn,
         'remove-node': removeNodeBtn,
         'add-edge': addEdgeBtn,
+        'remove-edge': removeEdgeBtn,
         'select-node': selectNodeBtn, // Added
         'set-start': setStartBtn,
         'set-end': setEndBtn
@@ -63,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'select-node': return '노드 선택 - 노드를 드래그하여 이동하세요.'; // Added
             case 'set-start': return '시작점 선택 - 시작 노드를 클릭하세요.';
             case 'set-end': return '종료점 선택 - 종료 노드를 클릭하세요.';
+            case 'remove-edge': return '간선 제거 - 제거할 간선을 클릭하세요.';
             default: return '대기 중';
         }
     }
@@ -71,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addNodeBtn.addEventListener('click', () => setMode('add-node'));
     removeNodeBtn.addEventListener('click', () => setMode('remove-node'));
     addEdgeBtn.addEventListener('click', () => setMode('add-edge'));
+    removeEdgeBtn.addEventListener('click', () => setMode('remove-edge'));
     selectNodeBtn.addEventListener('click', () => setMode('select-node')); // Added
     setStartBtn.addEventListener('click', () => setMode('set-start'));
     setEndBtn.addEventListener('click', () => setMode('set-end'));
@@ -178,6 +182,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (edges[edgeKey]) {
             graphSvg.removeChild(edges[edgeKey].element);
             graphSvg.removeChild(edges[edgeKey].textElement);
+
+            // Remove edge from connected nodes' edges array
+            const [node1Id, node2Id] = edgeKey.split('-').map(Number);
+
+            // Remove edge from connected nodes' edges array
+            if (nodes[node1Id] && nodes[node1Id].edges) {
+                nodes[node1Id].edges = nodes[node1Id].edges.filter(edge => edge.key !== edgeKey);
+            }
+            if (nodes[node2Id] && nodes[node2Id].edges) {
+                nodes[node2Id].edges = nodes[node2Id].edges.filter(edge => edge.key !== edgeKey);
+            }
+
             delete edges[edgeKey];
         }
     }
@@ -212,13 +228,21 @@ document.addEventListener('DOMContentLoaded', () => {
         graphSvg.insertBefore(edgeElement, graphSvg.firstChild);
         graphSvg.insertBefore(edgeLabel, edgeElement.nextSibling);
 
+        edgeElement.addEventListener('click', (e) => onEdgeClick(edgeKey, e));
+
         const edgeData = { weight, element: edgeElement, textElement: edgeLabel };
         edges[edgeKey] = edgeData;
         nodes[node1Id].edges.push({ to: node2Id, weight, key: edgeKey });
         nodes[node2Id].edges.push({ to: node1Id, weight, key: edgeKey });
     }
 
-    function setStartNode(nodeId) {
+    function onEdgeClick(edgeKey, e) {
+        e.stopPropagation(); // Prevent graphSvg click event
+        if (mode === 'remove-edge') {
+            removeEdgeByKey(edgeKey);
+            setMode('none'); // Reset mode after removing edge
+        }
+    
         if (startNodeId) {
             nodes[startNodeId].element.classList.remove('start');
         }
