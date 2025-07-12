@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const setEndBtn = document.getElementById('set-end-btn');
     const runBtn = document.getElementById('run-btn');
     const resetBtn = document.getElementById('reset-btn');
+    const saveGraphBtn = document.getElementById('save-graph-btn');
+    const loadGraphBtn = document.getElementById('load-graph-btn');
 
     // State
     let mode = 'none'; // 'add-node', 'remove-node', 'add-edge', 'set-start', 'set-end', 'select-node', 'remove-edge'
@@ -80,6 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setEndBtn.addEventListener('click', () => setMode('set-end'));
     runBtn.addEventListener('click', runDijkstra);
     resetBtn.addEventListener('click', resetGraph);
+    saveGraphBtn.addEventListener('click', saveGraph);
+    loadGraphBtn.addEventListener('click', loadGraph);
 
     graphSvg.addEventListener('click', (e) => {
         if (e.target.id !== 'graph-svg') return; // Click on background only
@@ -101,8 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return pt.matrixTransform(graphSvg.getScreenCTM().inverse());
     }
 
-    function addNode(x, y) {
-        const nodeId = ++nodeCount;
+    function addNode(x, y, existingNodeId = null) {
+        const nodeId = existingNodeId !== null ? existingNodeId : ++nodeCount;
         
         const nodeElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         nodeElement.setAttribute('id', `node-${nodeId}`);
@@ -272,8 +276,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function resetGraph() {
-        let yes = confirm("정말로 초기화하시겠습니까?");
-        if (!yes) return;
+        let yes = confirm("정말로 초기화하시겠습니까?");                                                                                   
+        if (!yes) return; 
         // Clear SVG
         while (graphSvg.firstChild) {
             graphSvg.removeChild(graphSvg.firstChild);
@@ -289,6 +293,88 @@ document.addEventListener('DOMContentLoaded', () => {
         statusText.textContent = '상태: 모든 내용이 초기화되었습니다.';
     }
     
+    function saveGraph() {
+        const graphData = {
+            nodes: {},
+            edges: []
+        };
+
+        // Save node positions
+        for (const nodeId in nodes) {
+            graphData.nodes[nodeId] = {
+                x: nodes[nodeId].x,
+                y: nodes[nodeId].y
+            };
+        }
+
+        // Save edge information
+        for (const edgeKey in edges) {
+            const [node1Id, node2Id] = edgeKey.split('-').map(Number);
+            graphData.edges.push({
+                from: node1Id,
+                to: node2Id,
+                weight: edges[edgeKey].weight
+            });
+        }
+
+        const dataStr = JSON.stringify(graphData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'graph_data.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        statusText.textContent = '그래프 데이터가 graph_data.json으로 저장되었습니다.';
+    }
+
+    function loadGraph() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+
+        input.onchange = e => {
+            const file = e.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const loadedData = JSON.parse(event.target.result);
+                    resetGraph(); // Clear current graph
+
+                    // Load nodes
+                    let maxNodeId = 0;
+                    for (const nodeId in loadedData.nodes) {
+                        const { x, y } = loadedData.nodes[nodeId];
+                        addNode(x, y, parseInt(nodeId)); // Pass nodeId to addNode
+                        if (parseInt(nodeId) > maxNodeId) {
+                            maxNodeId = parseInt(nodeId);
+                        }
+                    }
+                    nodeCount = maxNodeId; // Update nodeCount
+
+                    // Load edges
+                    loadedData.edges.forEach(edge => {
+                        addEdge(edge.from, edge.to, edge.weight);
+                    });
+
+                    statusText.textContent = '그래프 데이터가 성공적으로 불러와졌습니다.';
+                } catch (error) {
+                    alert('그래프 데이터를 불러오는 데 실패했습니다. 유효한 JSON 파일인지 확인하세요.');
+                    console.error('Error loading graph:', error);
+                    statusText.textContent = '그래프 불러오기 실패.';
+                }
+            };
+            reader.readAsText(file);
+        };
+        input.click();
+    }
+
     runBtn.addEventListener('click', runDijkstra);
 
     function dijkstra(startId, endId) {
