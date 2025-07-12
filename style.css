@@ -1,0 +1,105 @@
+body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+h1 {
+    margin-top: 20px;
+}
+
+#controls {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button.active {
+    background-color: #28a745;
+    box-shadow: 0 0 5px #28a745;
+}
+
+
+#graph-container {
+    width: 80vw;
+    height: 60vh;
+    border: 2px solid #ccc;
+    background-color: #fff;
+    position: relative;
+}
+
+#graph-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.node {
+    r: 15;
+    fill: #007bff;
+    stroke: #fff;
+    stroke-width: 2;
+    cursor: pointer;
+    transition: fill 0.3s;
+}
+
+.node:hover {
+    fill: #0056b3;
+}
+
+.node.start {
+    fill: #28a745; /* Green */
+}
+
+.node.end {
+    fill: #dc3545; /* Red */
+}
+
+.node-label {
+    font-size: 12px;
+    fill: #fff;
+    text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none; /* Make text non-interactive */
+}
+
+.edge {
+    stroke: #333;
+    stroke-width: 2;
+}
+
+.edge-label {
+    font-size: 14px;
+    fill: #d9534f;
+    text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none;
+}
+
+.path {
+    stroke: #ffc107;
+    stroke-width: 4;
+}
+
+#status-text {
+    margin-top: 15px;
+    font-size: 18px;
+    font-weight: bold;
+}
